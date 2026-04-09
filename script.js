@@ -32,7 +32,6 @@ if ('serviceWorker' in navigator) {
 // Global Variables
 let incomeExpenseChart = null;
 let categoryChart = null;
-let expenseChartInstance = null;
 let transactions = [];
 let categories = {
     income: ['Gaji', 'Bonus', 'Freelance', 'Investasi', 'Bisnis', 'Lainnya'],
@@ -289,21 +288,12 @@ function updateDashboard() {
     document.getElementById('expense-pribadi').textContent = formatCurrency(expByType.pribadi);
     document.getElementById('expense-umum').textContent = formatCurrency(expByType.umum);
 
-    updatePeriodStats(filtered);
     updateRecentTransactions(filtered);
-    if (!document.getElementById('riwayat-page').classList.contains('hidden')) displayTransactions();
+    if (document.getElementById('riwayat-page').classList.contains('active')) displayTransactions();
     updateCharts(filtered);
 }
 
-function updatePeriodStats(filtered) {
-    const todayStr = new Date().toDateString();
-    const todayT = filtered.filter(t => new Date(t.date).toDateString() === todayStr);
-    const tInc = todayT.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const tExp = todayT.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    document.getElementById('today-balance').textContent = formatCurrency(tInc - tExp);
-    
-    // Omit week and month UI updates here for brevity in this SPA modern version unless they exist in HTML
-}
+
 
 function updateRecentTransactions(filtered) {
     const recent = filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
