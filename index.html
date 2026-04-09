@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark"> <!-- Default to dark mode for premium feel -->
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -15,6 +15,9 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="./style.css" rel="stylesheet">
     
     <script>
@@ -46,9 +49,6 @@
             <img src="./icon-192x192.png" class="w-8 h-8 rounded-lg">
             <span class="font-bold text-xl tracking-tight">QCash</span>
         </div>
-        <button id="dark-mode-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 ripple">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-        </button>
     </header>
 
     <!-- Main Content Area -->
@@ -192,7 +192,19 @@
 
         <!-- RIWAYAT PAGE -->
         <div id="riwayat-page" class="page-content">
-            <h2 class="text-2xl font-bold mb-4">Riwayat</h2>
+            <!-- Header & Export Actions -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Riwayat</h2>
+                <div class="flex space-x-2">
+                    <button onclick="exportExcel()" class="bg-emerald-500 text-white rounded-lg px-3 py-1.5 shadow shadow-emerald-500/20 text-[11px] font-bold active:scale-95 flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Excel
+                    </button>
+                    <button onclick="exportPDF()" class="bg-rose-500 text-white rounded-lg px-3 py-1.5 shadow shadow-rose-500/20 text-[11px] font-bold active:scale-95 flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>PDF
+                    </button>
+                </div>
+            </div>
+            
             <!-- Mini filters -->
             <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
                 <select id="filter-type" class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-sm font-bold min-w-max">
@@ -241,11 +253,10 @@
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
             <span>Riwayat</span>
         </div>
-        <!-- FAB-like button for add -->
-        <div class="bottom-nav-item -mt-5 ripple" onclick="showPage('transaksi')">
-            <div class="bg-indigo-500 text-white rounded-full p-2.5 shadow-lg shadow-indigo-500/40">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
-            </div>
+        <!-- Transaksi button -->
+        <div class="bottom-nav-item ripple" onclick="showPage('transaksi')">
+            <svg class="text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span class="text-blue-500 font-bold">Transaksi</span>
         </div>
         <div class="bottom-nav-item ripple" onclick="showPage('kategori')">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>

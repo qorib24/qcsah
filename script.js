@@ -50,14 +50,9 @@ function initializeApp() {
         }
     }, 1500);
 
-    // Initialize dark mode based on preference
-    if (localStorage.getItem('darkMode') === 'true' || 
-        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.add('dark'); // Force dark for premium QCash feel
-        localStorage.setItem('darkMode', 'true');
-    }
+    // Removed dark mode logic as per user request
+    document.documentElement.classList.remove('dark');
+    localStorage.removeItem('darkMode');
 
     loadData(); 
     loadCategoriesFromFirebase(); 
@@ -70,12 +65,11 @@ function initializeApp() {
     window.deleteCategory = deleteCategory;
     window.applyGlobalFilter = applyGlobalFilter;
     window.resetGlobalFilter = resetGlobalFilter;
-    window.toggleDarkMode = toggleDarkMode;
+    window.exportExcel = exportExcel;
+    window.exportPDF = exportPDF;
 }
 
 function setupEventListeners() {
-    document.getElementById('dark-mode-toggle')?.addEventListener('click', toggleDarkMode);
-    
     document.getElementById('income-form')?.addEventListener('submit', handleIncomeSubmit);
     document.getElementById('expense-form')?.addEventListener('submit', handleExpenseSubmit);
     document.getElementById('category-form')?.addEventListener('submit', handleCategorySubmit);
@@ -185,11 +179,6 @@ function showPage(pageId) {
         displayTransactions();
         populateFilterCategories();
     }
-}
-
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
 }
 
 function handleIncomeSubmit(e) {
@@ -461,6 +450,66 @@ function showToast(ty, msg) {
     toast.className = `fixed top-12 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold shadow-lg transition-transform duration-300 z-50 ${ty==='error'?'bg-red-500':'bg-emerald-500'}`;
     setTimeout(() => { toast.classList.add('-translate-y-24'); }, 3000);
     toast.classList.remove('-translate-y-24');
+}
+
+function getCurrentFilteredListData() {
+    const ty = document.getElementById('filter-type')?.value || 'all';
+    const ca = document.getElementById('filter-category')?.value || 'all';
+    let fi = getFilteredTransactions();
+    if (ty !== 'all') fi = fi.filter(t => t.type === ty);
+    if (ca !== 'all') fi = fi.filter(t => t.category === ca);
+    return fi;
+}
+
+function exportExcel() {
+    const data = getCurrentFilteredListData();
+    if(data.length === 0) return showToast('error', 'Tidak ada data untuk diekspor!');
+    
+    const sorted = data.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+    const rows = sorted.map((t, index) => ({
+        'No': index + 1,
+        'Tanggal': t.date,
+        'Tipe': t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+        'Kategori': t.category,
+        'Deskripsi': t.description,
+        'Nominal (Rp)': t.amount
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Riwayat Transaksi");
+    XLSX.writeFile(wb, "Laporan_QCash.xlsx");
+    showToast('success', 'Excel berhasil dibuat!');
+}
+
+function exportPDF() {
+    const data = getCurrentFilteredListData();
+    if(data.length === 0) return showToast('error', 'Tidak ada data untuk diekspor!');
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.text("Laporan Transaksi QCash", 14, 15);
+    
+    const sorted = data.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+    const tableData = sorted.map((t, index) => [
+        index + 1,
+        t.date,
+        t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+        t.category,
+        t.description,
+        'Rp ' + t.amount.toLocaleString('id-ID')
+    ]);
+    
+    doc.autoTable({
+        startY: 20,
+        head: [['No', 'Tanggal', 'Tipe', 'Kategori', 'Deskripsi', 'Nominal']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [79, 70, 229] } // UI Indigo matches theme!
+    });
+    
+    doc.save("Laporan_QCash.pdf");
+    showToast('success', 'PDF berhasil dibuat!');
 }
 
 // Start
