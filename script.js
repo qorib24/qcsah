@@ -136,9 +136,7 @@ function loadData() {
     window.firebase.onValue(transactionsRef, (snapshot) => {
         const data = snapshot.val();
         transactions = data ? Object.values(data) : [];
-        if (transactions.length > 0) {
-            localStorage.setItem('offline_transactions', JSON.stringify(transactions));
-        }
+        localStorage.setItem('offline_transactions', JSON.stringify(transactions));
         updateDashboard();
     });
 }
@@ -164,13 +162,14 @@ function loadCategoriesFromFirebase() {
         const data = snapshot.val();
         if (data) {
             categories = data;
-            if(!categories.expense) categories.expense = [];
-            if(!categories.expense.includes('Investasi')) categories.expense.push('Investasi');
-            if(!categories.expense.includes('Tabungan')) categories.expense.push('Tabungan');
-            localStorage.setItem('offline_categories', JSON.stringify(categories));
-            updateCategories();
-            updateCategorySelects();
         }
+        if(!categories.expense) categories.expense = [];
+        if(!categories.expense.includes('Investasi')) categories.expense.push('Investasi');
+        if(!categories.expense.includes('Tabungan')) categories.expense.push('Tabungan');
+        
+        localStorage.setItem('offline_categories', JSON.stringify(categories));
+        updateCategories();
+        updateCategorySelects();
     });
 }
 
@@ -468,7 +467,6 @@ function updateCategorySelects() {
 }
 
 function deleteTransaction(id) {
-    const refKeyPromise = window.firebase.database;
     const tRef = window.firebase.ref(window.firebase.database, 'transactions');
     window.firebase.onValue(tRef, snap => {
         const data = snap.val();
