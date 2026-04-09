@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id" class="dark"> <!-- Default to dark mode for premium feel -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>QCash</title>
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0C0E12">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QCash">
+    <link rel="apple-touch-icon" href="./icon-192x192.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="./style.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 'inter': ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-gray-900 dark:text-white antialiased">
+    
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <img src="./icon-192x192.png" alt="QCash Logo" class="splash-logo">
+        <h1 class="splash-title">QCash</h1>
+        <div class="loader"></div>
+    </div>
+
+    <!-- Global Toast -->
+    <div id="toast" class="fixed top-12 left-1/2 transform -translate-x-1/2 -translate-y-24 px-6 py-3 rounded-full text-white font-bold shadow-lg transition-transform duration-300 z-50"></div>
+
+    <!-- Top App Bar (Minimalist) -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 dark:bg-[#0C0E12]/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <img src="./icon-192x192.png" class="w-8 h-8 rounded-lg">
+            <span class="font-bold text-xl tracking-tight">QCash</span>
+        </div>
+        <button id="dark-mode-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 ripple">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </button>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="pt-20 px-4 md:px-6 max-w-lg mx-auto w-full">
+        
+        <!-- DASHBOARD -->
+        <div id="dashboard-page" class="page-content active">
+            <!-- Global filters -->
+            <div class="glass-morphism p-4 mb-6 hidden md:block">
+                <input type="date" id="global-filter-from" class="bg-gray-100 dark:bg-gray-800 rounded px-2 text-sm text-gray-500">
+                <input type="date" id="global-filter-to" class="bg-gray-100 dark:bg-gray-800 rounded px-2 text-sm text-gray-500">
+                <button onclick="applyGlobalFilter()" class="bg-indigo-500 text-white px-2 py-1 rounded text-sm">Filter</button>
+            </div>
+
+            <!-- Total Balance Card -->
+            <div class="glass-morphism p-6 mb-6 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/40 dark:to-purple-900/40">
+                <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Saldo</div>
+                <div class="text-4xl font-extrabold mt-1 mb-4" id="total-balance">Rp 0</div>
+                <div class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white/20 dark:border-white/5">
+                    <div>
+                        <div class="text-xs text-gray-500">Pemasukan</div>
+                        <div class="text-sm font-bold text-green-500" id="total-income">Rp 0</div>
+                    </div>
+                    <div class="w-px h-8 bg-gray-300 dark:bg-gray-700"></div>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-500">Pengeluaran</div>
+                        <div class="text-sm font-bold text-red-500" id="total-expense">Rp 0</div>
+                    </div>
+                </div>
+                <!-- Details -->
+                <div class="flex justify-between mt-3 px-1 text-xs">
+                    <div><span class="text-gray-500">Pribadi:</span> <span id="expense-pribadi" class="font-bold text-red-400">Rp 0</span></div>
+                    <div><span class="text-gray-500">Umum:</span> <span id="expense-umum" class="font-bold text-orange-400">Rp 0</span></div>
+                </div>
+            </div>
+
+            <!-- Total Tabungan Card -->
+            <div class="glass-morphism p-4 mb-6 relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-900/40 dark:to-teal-900/40 flex justify-between items-center">
+                <div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Tabungan</div>
+                    <div class="text-2xl font-extrabold mt-1 text-emerald-600 dark:text-emerald-400" id="total-tabungan">Rp 0</div>
+                </div>
+                <div class="bg-emerald-500/20 p-3 rounded-full">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="space-y-6 mb-6">
+                <!-- Tren 6 Bulan -->
+                <div class="glass-morphism p-4">
+                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-400 uppercase">Pemasukan vs Pengeluaran</h3>
+                    <div class="h-48 w-full"><canvas id="income-expense-chart"></canvas></div>
+                </div>
+
+
+                <!-- Kategori Pengeluaran -->
+                <div class="glass-morphism p-4">
+                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-400 uppercase">Kategori Pengeluaran</h3>
+                    <div class="h-48 w-full"><canvas id="category-chart"></canvas></div>
+                </div>
+            </div>
+            
+            <!-- Recent Transactions -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">Terbaru</h3>
+                    <button onclick="showPage('riwayat')" class="text-sm text-indigo-500 font-bold">Semua</button>
+                </div>
+                <div id="recent-transactions"></div>
+            </div>
+        </div>
+
+        <!-- TRANSAKSI PAGE -->
+        <div id="transaksi-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-6">Catat Transaksi</h2>
+            
+            <div class="flex space-x-2 mb-6 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl">
+                <button onclick="document.getElementById('t-masuk').style.display='block'; document.getElementById('t-keluar').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow'); this.nextElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow');" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-700 shadow transition-all">Pemasukan</button>
+                <button onclick="document.getElementById('t-keluar').style.display='block'; document.getElementById('t-masuk').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow'); this.previousElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow');" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all text-gray-500">Pengeluaran</button>
+            </div>
+
+            <!-- Form Pemasukan -->
+            <div id="t-masuk">
+                <form id="income-form" class="space-y-4">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg">Rp</span>
+                        <input type="number" id="income-amount" class="w-full bg-transparent border-b-2 border-gray-200 dark:border-gray-700 focus:border-indigo-500 pl-12 pr-4 py-4 text-3xl font-bold transition-all" placeholder="0" required>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase">Deskripsi</label>
+                        <input type="text" id="income-description" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" placeholder="Contoh: Gaji bulanan" required>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase">Kategori</label>
+                            <select id="income-category" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" required><option value="">Pilih</option></select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase">Tanggal</label>
+                            <input type="date" id="income-date" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl ripple mt-4 shadow-lg shadow-emerald-500/30 active:scale-95 transition-transform">Simpan Pemasukan</button>
+                </form>
+            </div>
+
+            <!-- Form Pengeluaran -->
+            <div id="t-keluar" style="display:none;">
+                <form id="expense-form" class="space-y-4">
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-red-500">Rp</span>
+                        <input type="number" id="expense-amount" class="w-full bg-transparent border-b-2 border-gray-200 dark:border-gray-700 focus:border-red-500 text-red-500 pl-12 pr-4 py-4 text-3xl font-bold transition-all" placeholder="0" required>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase">Deskripsi</label>
+                        <input type="text" id="expense-description" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" placeholder="Contoh: Makan siang" required>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase">Tipe</label>
+                            <select id="expense-type" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
+                                <option value="">Pilih</option>
+                                <option value="pribadi">Pribadi</option>
+                                <option value="umum">Umum</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase">Kategori</label>
+                            <select id="expense-category" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required><option value="">Pilih</option></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase">Tanggal</label>
+                        <input type="date" id="expense-date" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-xl ripple mt-4 shadow-lg shadow-red-500/30 active:scale-95 transition-transform">Simpan Pengeluaran</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIWAYAT PAGE -->
+        <div id="riwayat-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-4">Riwayat</h2>
+            <!-- Mini filters -->
+            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                <select id="filter-type" class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-sm font-bold min-w-max">
+                    <option value="all">Semua Tipe</option>
+                    <option value="income">Pemasukan</option>
+                    <option value="expense">Pengeluaran</option>
+                </select>
+                <select id="filter-category" class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-sm font-bold min-w-max">
+                    <option value="all">Semua Kategori</option>
+                </select>
+            </div>
+            <div id="transactions-list"></div>
+        </div>
+
+        <!-- KATEGORI PAGE -->
+        <div id="kategori-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-6">Kelola Kategori</h2>
+            <form id="category-form" class="glass-morphism p-4 mb-8">
+                <input type="text" id="category-name" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-3" placeholder="Nama kategori baru" required>
+                <select id="category-type" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-3" required>
+                    <option value="">Pilih Tipe</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option>
+                </select>
+                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 rounded-xl ripple shadow shadow-indigo-500/30">Tambah Kategori</button>
+            </form>
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-bold text-green-500 mb-3">Kategori Pemasukan</h3>
+                    <div id="income-categories"></div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-red-500 mb-3">Kategori Pengeluaran</h3>
+                    <div id="expense-categories"></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar for PWA Mobile Feel -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-item active ripple" onclick="showPage('dashboard')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span>Beranda</span>
+        </div>
+        <div class="bottom-nav-item ripple" onclick="showPage('riwayat')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            <span>Riwayat</span>
+        </div>
+        <!-- FAB-like button for add -->
+        <div class="bottom-nav-item -mt-6 ripple" onclick="showPage('transaksi')">
+            <div class="bg-indigo-500 text-white rounded-full p-3 shadow-lg shadow-indigo-500/40">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+            </div>
+        </div>
+        <div class="bottom-nav-item ripple" onclick="showPage('kategori')">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <span>Kategori</span>
+        </div>
+    </nav>
+
+    <!-- App Logic & FireBase -->
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
