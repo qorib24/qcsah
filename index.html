@@ -41,7 +41,7 @@
     <div id="toast" class="fixed top-12 left-1/2 transform -translate-x-1/2 -translate-y-24 px-6 py-3 rounded-full text-white font-bold shadow-lg transition-transform duration-300 z-50"></div>
 
     <!-- Top App Bar (Minimalist) -->
-    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 dark:bg-[#0C0E12]/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between">
+    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 dark:bg-[#0C0E12]/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 px-4 pt-[calc(0.75rem+env(safe-area-inset-top))] pb-3 flex items-center justify-between">
         <div class="flex items-center space-x-2">
             <img src="./icon-192x192.png" class="w-8 h-8 rounded-lg">
             <span class="font-bold text-xl tracking-tight">QCash</span>
@@ -52,15 +52,21 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="pt-20 px-4 md:px-6 max-w-lg mx-auto w-full">
+    <main class="pt-[calc(5rem+env(safe-area-inset-top))] px-4 md:px-6 max-w-lg mx-auto w-full">
         
         <!-- DASHBOARD -->
         <div id="dashboard-page" class="page-content active">
             <!-- Global filters -->
-            <div class="glass-morphism p-4 mb-6 hidden md:block">
-                <input type="date" id="global-filter-from" class="bg-gray-100 dark:bg-gray-800 rounded px-2 text-sm text-gray-500">
-                <input type="date" id="global-filter-to" class="bg-gray-100 dark:bg-gray-800 rounded px-2 text-sm text-gray-500">
-                <button onclick="applyGlobalFilter()" class="bg-indigo-500 text-white px-2 py-1 rounded text-sm">Filter</button>
+            <div class="glass-morphism p-3 mb-6 flex flex-wrap gap-2 items-center justify-between shadow-sm">
+                <div class="flex space-x-2 items-center w-full sm:w-auto">
+                    <input type="date" id="global-filter-from" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 text-xs text-gray-500 w-full shadow-inner">
+                    <span class="text-gray-400 font-bold">-</span>
+                    <input type="date" id="global-filter-to" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 text-xs text-gray-500 w-full shadow-inner">
+                </div>
+                <div class="flex space-x-2 mt-2 sm:mt-0 w-full sm:w-auto">
+                    <button onclick="applyGlobalFilter()" class="flex-1 sm:flex-none bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold ripple shadow">Filter</button>
+                    <button onclick="resetGlobalFilter()" class="flex-1 sm:flex-none bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-1.5 rounded-lg text-xs font-bold ripple shadow">Reset</button>
+                </div>
             </div>
 
             <!-- Total Balance Card -->
