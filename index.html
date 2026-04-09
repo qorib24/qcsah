@@ -57,15 +57,17 @@
         <!-- DASHBOARD -->
         <div id="dashboard-page" class="page-content active">
             <!-- Global filters -->
-            <div class="glass-morphism p-3 mb-6 flex flex-wrap gap-2 items-center justify-between shadow-sm">
-                <div class="flex space-x-2 items-center w-full sm:w-auto">
-                    <input type="date" id="global-filter-from" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 text-xs text-gray-500 w-full shadow-inner">
-                    <span class="text-gray-400 font-bold">-</span>
-                    <input type="date" id="global-filter-to" class="bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-1 text-xs text-gray-500 w-full shadow-inner">
-                </div>
-                <div class="flex space-x-2 mt-2 sm:mt-0 w-full sm:w-auto">
-                    <button onclick="applyGlobalFilter()" class="flex-1 sm:flex-none bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold ripple shadow">Filter</button>
-                    <button onclick="resetGlobalFilter()" class="flex-1 sm:flex-none bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-1.5 rounded-lg text-xs font-bold ripple shadow">Reset</button>
+            <div class="glass-morphism p-3 mb-6">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <div class="flex flex-1 items-center space-x-2">
+                        <input type="date" id="global-filter-from" class="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center border-none shadow-inner focus:ring-0 appearance-none">
+                        <span class="text-gray-400 text-xs font-bold">-</span>
+                        <input type="date" id="global-filter-to" class="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center border-none shadow-inner focus:ring-0 appearance-none">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="applyGlobalFilter()" class="flex-1 sm:flex-none bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-500/20 active:scale-95">Set</button>
+                        <button onclick="resetGlobalFilter()" class="flex-none bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-2 rounded-lg text-xs font-bold active:scale-95">X</button>
+                    </div>
                 </div>
             </div>
 
@@ -118,14 +120,6 @@
                 </div>
             </div>
             
-            <!-- Recent Transactions -->
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg">Terbaru</h3>
-                    <button onclick="showPage('riwayat')" class="text-sm text-indigo-500 font-bold">Semua</button>
-                </div>
-                <div id="recent-transactions"></div>
-            </div>
         </div>
 
         <!-- TRANSAKSI PAGE -->
@@ -248,8 +242,8 @@
             <span>Riwayat</span>
         </div>
         <!-- FAB-like button for add -->
-        <div class="bottom-nav-item -mt-6 ripple" onclick="showPage('transaksi')">
-            <div class="bg-indigo-500 text-white rounded-full p-3 shadow-lg shadow-indigo-500/40">
+        <div class="bottom-nav-item -mt-5 ripple" onclick="showPage('transaksi')">
+            <div class="bg-indigo-500 text-white rounded-full p-2.5 shadow-lg shadow-indigo-500/40">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
             </div>
         </div>

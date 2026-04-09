@@ -127,16 +127,10 @@ function getFilteredTransactions() {
 }
 
 function loadData() {
-    const cached = localStorage.getItem('offline_transactions');
-    if (cached) {
-        transactions = JSON.parse(cached);
-        updateDashboard();
-    }
     const transactionsRef = window.firebase.ref(window.firebase.database, 'transactions');
     window.firebase.onValue(transactionsRef, (snapshot) => {
         const data = snapshot.val();
         transactions = data ? Object.values(data) : [];
-        localStorage.setItem('offline_transactions', JSON.stringify(transactions));
         updateDashboard();
     });
 }
@@ -152,12 +146,6 @@ function saveCategoriesToFirebase() {
 }
 
 function loadCategoriesFromFirebase() {
-    const cached = localStorage.getItem('offline_categories');
-    if (cached) {
-        categories = JSON.parse(cached);
-        updateCategories();
-        updateCategorySelects();
-    }
     window.firebase.onValue(window.firebase.ref(window.firebase.database, 'categories'), (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -167,7 +155,6 @@ function loadCategoriesFromFirebase() {
         if(!categories.expense.includes('Investasi')) categories.expense.push('Investasi');
         if(!categories.expense.includes('Tabungan')) categories.expense.push('Tabungan');
         
-        localStorage.setItem('offline_categories', JSON.stringify(categories));
         updateCategories();
         updateCategorySelects();
     });
@@ -287,43 +274,13 @@ function updateDashboard() {
     document.getElementById('expense-pribadi').textContent = formatCurrency(expByType.pribadi);
     document.getElementById('expense-umum').textContent = formatCurrency(expByType.umum);
 
-    updateRecentTransactions(filtered);
     if (document.getElementById('riwayat-page').classList.contains('active')) displayTransactions();
     updateCharts(filtered);
 }
 
 
 
-function updateRecentTransactions(filtered) {
-    const recent = filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
-    const container = document.getElementById('recent-transactions');
-    if (recent.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-gray-500 text-sm">Belum ada transaksi</div>`;
-        return;
-    }
-    container.innerHTML = recent.map(t => renderTransactionCard(t)).join('');
-}
 
-function renderTransactionCard(t) {
-    const isInc = t.type === 'income';
-    return `
-    <div class="glass-morphism rounded-xl p-4 flex items-center justify-between mb-3 active:scale-[0.98] transition-transform">
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isInc ? 'bg-green-500/10' : 'bg-red-500/10'}">
-                <svg class="w-6 h-6 ${isInc ? 'text-green-500' : 'text-red-500'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isInc ? 'M12 6v6m0 0v6m0-6h6m-6 0H6' : 'M20 12H4'}"></path>
-                </svg>
-            </div>
-            <div>
-                <div class="font-bold text-gray-900 dark:text-white">${escapeHTML(t.description)}</div>
-                <div class="text-xs text-gray-500 mt-1">${escapeHTML(t.category)} • ${formatDate(t.date)}</div>
-            </div>
-        </div>
-        <div class="font-bold border-l border-gray-100 dark:border-gray-800 pl-4 py-1 text-right shrink-0 ${isInc ? 'text-green-500' : 'text-red-500'}">
-            ${isInc ? '+' : '-'}<br/>${formatCurrencyShort(t.amount)}
-        </div>
-    </div>`;
-}
 
 function updateCharts(filtered) {
     const data = filtered || getFilteredTransactions();

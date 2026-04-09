@@ -113,8 +113,8 @@ body {
     backdrop-filter: blur(20px);
     border-top: 1px solid rgba(0,0,0,0.05);
     display: flex; justify-content: space-around; align-items: center;
-    padding: 12px 10px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    padding: 8px 10px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
     z-index: 50;
     transition: transform 0.3s ease;
 }
@@ -130,7 +130,7 @@ body {
     flex: 1;
 }
 .bottom-nav-item svg {
-    width: 24px; height: 24px; margin-bottom: 5px;
+    width: 22px; height: 22px; margin-bottom: 4px;
     transition: transform 0.2s, stroke-width 0.2s;
 }
 .bottom-nav-item.active {
@@ -171,5 +171,6 @@ body {
 /* Inputs styling */
 input, select {
     outline: none !important;
+    appearance: none;
     -webkit-appearance: none;
 }
