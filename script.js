@@ -215,14 +215,15 @@ function handleExpenseSubmit(e) {
 }
 
 function calculateExpenseByType(src) {
-    let pribadi = 0, umum = 0;
+    let pribadi = 0, umum = 0, keluarga = 0;
     src.forEach(t => {
         if (t.type === 'expense') {
             if (t.expenseType === 'pribadi') pribadi += t.amount;
             if (t.expenseType === 'umum') umum += t.amount;
+            if (t.expenseType === 'keluarga') keluarga += t.amount;
         }
     });
-    return { pribadi, umum };
+    return { pribadi, umum, keluarga };
 }
 
 function handleCategorySubmit(e) {
@@ -262,6 +263,7 @@ function updateDashboard() {
     const expByType = calculateExpenseByType(filtered);
     document.getElementById('expense-pribadi').textContent = formatCurrency(expByType.pribadi);
     document.getElementById('expense-umum').textContent = formatCurrency(expByType.umum);
+    document.getElementById('expense-keluarga').textContent = formatCurrency(expByType.keluarga);
 
     if (document.getElementById('riwayat-page').classList.contains('active')) displayTransactions();
     updateCharts(filtered);
