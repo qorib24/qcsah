@@ -18,6 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="./style.css" rel="stylesheet">
     
     <script>
@@ -49,145 +50,255 @@
             <img src="./icon-192x192.png" class="w-8 h-8 rounded-lg">
             <span class="font-bold text-xl tracking-tight">QCash</span>
         </div>
+        <button id="theme-toggle" onclick="toggleDarkMode()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+            <i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i>
+        </button>
     </header>
 
     <!-- Main Content Area -->
-    <main class="pt-[calc(5rem+env(safe-area-inset-top))] px-4 md:px-6 max-w-lg mx-auto w-full">
+    <main class="pt-[calc(4.5rem+env(safe-area-inset-top))] px-4 md:px-6 max-w-lg mx-auto w-full pb-24">
         
         <!-- DASHBOARD -->
         <div id="dashboard-page" class="page-content active">
-            <!-- Global filters -->
-            <div class="glass-morphism p-3 mb-6">
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <div class="flex flex-1 items-center space-x-2">
-                        <input type="date" id="global-filter-from" class="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center border-none shadow-inner focus:ring-0 appearance-none">
-                        <span class="text-gray-400 text-xs font-bold">-</span>
-                        <input type="date" id="global-filter-to" class="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-2 py-2 text-xs md:text-sm text-gray-600 dark:text-gray-400 text-center border-none shadow-inner focus:ring-0 appearance-none">
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="applyGlobalFilter()" class="flex-1 sm:flex-none bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md shadow-indigo-500/20 active:scale-95">Set</button>
-                        <button onclick="resetGlobalFilter()" class="flex-none bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-3 py-2 rounded-lg text-xs font-bold active:scale-95">X</button>
+            <!-- Header greeting -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-sm text-gray-500 font-medium">Kondisi Keuangan</h2>
+                    <div id="financial-condition" class="text-xl font-bold flex items-center space-x-2">
+                        <div class="skeleton w-24 h-6 rounded"></div>
                     </div>
                 </div>
+                <button class="bg-white/50 dark:bg-gray-800/50 p-2 rounded-full shadow-sm" onclick="showPage('transaksi')">
+                    <i data-lucide="plus" class="w-5 h-5 text-indigo-500"></i>
+                </button>
             </div>
 
             <!-- Total Balance Card -->
-            <div class="glass-morphism p-6 mb-6 relative overflow-hidden bg-gradient-to-br from-indigo-500/10 to-purple-500/10 dark:from-indigo-900/40 dark:to-purple-900/40">
-                <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Saldo</div>
-                <div class="text-4xl font-extrabold mt-1 mb-4" id="total-balance">Rp 0</div>
-                <div class="flex justify-between items-center bg-white/50 dark:bg-black/20 p-3 rounded-xl border border-white/20 dark:border-white/5">
-                    <div>
-                        <div class="text-xs text-gray-500">Pemasukan</div>
-                        <div class="text-sm font-bold text-green-500" id="total-income">Rp 0</div>
+            <div class="glass-morphism modern-card p-6 mb-6 relative overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-black/10 rounded-full blur-2xl"></div>
+                
+                <div class="text-sm font-medium text-white/80">Total Saldo</div>
+                <div class="text-4xl font-extrabold mt-1 mb-6 tracking-tight" id="total-balance">Rp 0</div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <div class="bg-white/20 p-1 rounded-lg"><i data-lucide="arrow-down-left" class="w-4 h-4 text-white"></i></div>
+                            <span class="text-xs text-white/80">Pemasukan</span>
+                        </div>
+                        <div class="text-sm font-bold" id="total-income">Rp 0</div>
                     </div>
-                    <div class="w-px h-8 bg-gray-300 dark:bg-gray-700"></div>
-                    <div class="text-right">
-                        <div class="text-xs text-gray-500">Pengeluaran</div>
-                        <div class="text-sm font-bold text-red-500" id="total-expense">Rp 0</div>
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <div class="bg-white/20 p-1 rounded-lg"><i data-lucide="arrow-up-right" class="w-4 h-4 text-white"></i></div>
+                            <span class="text-xs text-white/80">Pengeluaran</span>
+                        </div>
+                        <div class="text-sm font-bold" id="total-expense">Rp 0</div>
                     </div>
-                </div>
-                <!-- Details -->
-                <div class="flex justify-between mt-3 px-1 text-xs">
-                    <div><span class="text-gray-500">Pribadi:</span> <span id="expense-pribadi" class="font-bold text-red-400">Rp 0</span></div>
-                    <div><span class="text-gray-500">Umum:</span> <span id="expense-umum" class="font-bold text-orange-400">Rp 0</span></div>
-                    <div><span class="text-gray-500">Keluarga:</span> <span id="expense-keluarga" class="font-bold text-orange-400">Rp 0</span></div>
                 </div>
             </div>
 
-            <!-- Total Tabungan Card -->
-            <div class="glass-morphism p-4 mb-6 relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-teal-500/10 dark:from-emerald-900/40 dark:to-teal-900/40 flex justify-between items-center">
-                <div>
-                    <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Tabungan</div>
-                    <div class="text-2xl font-extrabold mt-1 text-emerald-600 dark:text-emerald-400" id="total-tabungan">Rp 0</div>
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-4 gap-2 mb-8">
+                <div class="flex flex-col items-center justify-center space-y-2 cursor-pointer action-bounce" onclick="document.getElementById('t-masuk-btn').click(); showPage('transaksi');">
+                    <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
+                        <i data-lucide="arrow-down-to-line"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-center text-gray-600 dark:text-gray-400">Pemasukan</span>
                 </div>
-                <div class="bg-emerald-500/20 p-3 rounded-full">
-                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="flex flex-col items-center justify-center space-y-2 cursor-pointer action-bounce" onclick="document.getElementById('t-keluar-btn').click(); showPage('transaksi');">
+                    <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-2xl flex items-center justify-center text-rose-500 shadow-sm">
+                        <i data-lucide="arrow-up-from-line"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-center text-gray-600 dark:text-gray-400">Pengeluaran</span>
+                </div>
+                <div class="flex flex-col items-center justify-center space-y-2 cursor-pointer action-bounce" onclick="showPage('hutang')">
+                    <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm">
+                        <i data-lucide="book-open-check"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-center text-gray-600 dark:text-gray-400">Hutang</span>
+                </div>
+                <div class="flex flex-col items-center justify-center space-y-2 cursor-pointer action-bounce" onclick="showPage('riwayat')">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-blue-500 shadow-sm">
+                        <i data-lucide="history"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-center text-gray-600 dark:text-gray-400">Riwayat</span>
+                </div>
+            </div>
+
+            <!-- Smart Insights -->
+            <div class="mb-8">
+                <h3 class="font-bold mb-3 text-sm text-gray-800 dark:text-gray-200">Smart Insights</h3>
+                <div class="flex overflow-x-auto space-x-4 pb-4 snap-x" id="smart-insights-container">
+                    <!-- Cards will be injected here -->
+                    <div class="skeleton h-24 min-w-[240px] rounded-2xl"></div>
+                    <div class="skeleton h-24 min-w-[240px] rounded-2xl"></div>
                 </div>
             </div>
 
             <!-- Charts -->
             <div class="space-y-6 mb-6">
-                <!-- Tren 6 Bulan -->
-                <div class="glass-morphism p-4">
-                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-400 uppercase">Pemasukan vs Pengeluaran</h3>
+                <!-- Cashflow -->
+                <div class="glass-morphism modern-card p-5">
+                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-800 dark:text-gray-200">Arus Kas 6 Bulan</h3>
                     <div class="h-48 w-full"><canvas id="income-expense-chart"></canvas></div>
                 </div>
 
-
                 <!-- Kategori Pengeluaran -->
-                <div class="glass-morphism p-4">
-                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-400 uppercase">Kategori Pengeluaran</h3>
+                <div class="glass-morphism modern-card p-5">
+                    <h3 class="font-bold mb-4 text-sm tracking-wide text-gray-800 dark:text-gray-200">Kategori Pengeluaran</h3>
                     <div class="h-48 w-full"><canvas id="category-chart"></canvas></div>
                 </div>
             </div>
-            
+        </div>
+
+        <!-- BUDGET PAGE -->
+        <div id="budget-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-2">Budget Bulanan</h2>
+            <p class="text-sm text-gray-500 mb-6">Atur batas pengeluaran per kategori.</p>
+
+            <form id="budget-form" class="glass-morphism modern-card p-5 mb-8">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Kategori Pengeluaran</label>
+                        <select id="budget-category" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700" required>
+                            <option value="">Pilih</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Limit Bulanan</label>
+                        <span class="absolute left-4 top-[38px] font-bold text-gray-500">Rp</span>
+                        <input type="number" id="budget-amount" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-12 pr-4 py-4 font-bold transition-all" placeholder="0" required min="1">
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-4 rounded-xl ripple mt-2 shadow-lg shadow-indigo-500/30 hover-lift">Simpan Budget</button>
+                </div>
+            </form>
+
+            <h3 class="font-bold mb-4 text-sm text-gray-800 dark:text-gray-200">Progress Bulan Ini</h3>
+            <div id="budget-list" class="space-y-4 pb-10">
+                <!-- Budget items injected here -->
+                <div class="text-center py-8 text-gray-400 text-sm">Belum ada budget diatur</div>
+            </div>
+        </div>
+
+        <!-- HUTANG PAGE -->
+        <div id="hutang-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-2">Catatan Hutang / Piutang</h2>
+            <p class="text-sm text-gray-500 mb-6">Kelola hutang dan piutang Anda.</p>
+
+            <form id="hutang-form" class="glass-morphism modern-card p-5 mb-8">
+                <div class="space-y-4">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Tipe</label>
+                            <select id="hutang-type" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-sm" required>
+                                <option value="saya_hutang">Saya Hutang</option>
+                                <option value="orang_hutang">Orang Hutang</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Nama Pihak</label>
+                            <input type="text" id="hutang-name" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm focus:border-indigo-500" placeholder="Nama Orang/Lembaga" required>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Nominal (Rp)</label>
+                        <span class="absolute left-4 top-[35px] font-bold text-gray-500 text-sm">Rp</span>
+                        <input type="number" id="hutang-amount" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-12 pr-4 py-3 font-bold transition-all text-sm" placeholder="0" required min="1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Tanggal Jatuh Tempo</label>
+                        <input type="date" id="hutang-date" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm focus:border-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 text-sm rounded-xl ripple mt-2 shadow-lg shadow-indigo-500/30 hover-lift">Simpan Catatan</button>
+                </div>
+            </form>
+
+            <div class="flex space-x-2 mb-4">
+                <button id="btn-filter-hutang-all" onclick="filterHutang('all')" class="flex-1 bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 font-bold py-2 rounded-lg text-xs">Semua</button>
+                <button id="btn-filter-hutang-belum" onclick="filterHutang('belum_lunas')" class="flex-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 font-bold py-2 rounded-lg text-xs">Belum Lunas</button>
+                <button id="btn-filter-hutang-lunas" onclick="filterHutang('lunas')" class="flex-1 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 font-bold py-2 rounded-lg text-xs">Lunas</button>
+            </div>
+
+            <div id="hutang-list" class="space-y-4 pb-10">
+                <!-- Hutang items injected here -->
+                <div class="text-center py-8 text-gray-400 text-sm">Belum ada catatan hutang/piutang</div>
+            </div>
         </div>
 
         <!-- TRANSAKSI PAGE -->
         <div id="transaksi-page" class="page-content">
             <h2 class="text-2xl font-bold mb-6">Catat Transaksi</h2>
             
-            <div class="flex space-x-2 mb-6 bg-gray-200 dark:bg-gray-800 p-1 rounded-xl">
-                <button onclick="document.getElementById('t-masuk').style.display='block'; document.getElementById('t-keluar').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow'); this.nextElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow');" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-gray-700 shadow transition-all">Pemasukan</button>
-                <button onclick="document.getElementById('t-keluar').style.display='block'; document.getElementById('t-masuk').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow'); this.previousElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow');" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all text-gray-500">Pengeluaran</button>
+            <div class="flex space-x-2 mb-6 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl">
+                <button id="t-masuk-btn" onclick="document.getElementById('t-masuk').style.display='block'; document.getElementById('t-keluar').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow','text-indigo-600'); this.classList.remove('text-gray-500'); this.nextElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow','text-indigo-600'); this.nextElementSibling.classList.add('text-gray-500');" class="flex-1 py-3 text-sm font-bold rounded-xl bg-white dark:bg-gray-700 shadow text-indigo-600 transition-all">Pemasukan</button>
+                <button id="t-keluar-btn" onclick="document.getElementById('t-keluar').style.display='block'; document.getElementById('t-masuk').style.display='none'; this.classList.add('bg-white','dark:bg-gray-700','shadow','text-indigo-600'); this.classList.remove('text-gray-500'); this.previousElementSibling.classList.remove('bg-white','dark:bg-gray-700','shadow','text-indigo-600'); this.previousElementSibling.classList.add('text-gray-500');" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all text-gray-500">Pengeluaran</button>
             </div>
 
             <!-- Form Pemasukan -->
             <div id="t-masuk">
-                <form id="income-form" class="space-y-4">
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg">Rp</span>
-                        <input type="number" id="income-amount" class="w-full bg-transparent border-b-2 border-gray-200 dark:border-gray-700 focus:border-indigo-500 pl-12 pr-4 py-4 text-3xl font-bold transition-all" placeholder="0" required>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold uppercase">Deskripsi</label>
-                        <input type="text" id="income-description" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" placeholder="Contoh: Gaji bulanan" required>
-                    </div>
-                    <div class="flex space-x-4">
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Kategori</label>
-                            <select id="income-category" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" required><option value="">Pilih</option></select>
+                <form id="income-form" class="space-y-5">
+                    <div class="glass-morphism modern-card p-5">
+                        <div class="relative mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 font-bold text-xl text-gray-400">Rp</span>
+                            <input type="number" id="income-amount" class="w-full bg-transparent pl-12 pr-4 py-2 text-4xl font-extrabold transition-all text-gray-900 dark:text-white" placeholder="0" required min="1">
                         </div>
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Tanggal</label>
-                            <input type="date" id="income-date" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Deskripsi</label>
+                                <input type="text" id="income-description" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 focus:border-indigo-500 transition-colors" placeholder="Contoh: Gaji bulanan" required>
+                            </div>
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Kategori</label>
+                                    <select id="income-category" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700" required><option value="">Pilih</option></select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Tanggal</label>
+                                    <input type="date" id="income-date" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-sm" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl ripple mt-4 shadow-lg shadow-emerald-500/30 active:scale-95 transition-transform">Simpan Pemasukan</button>
+                    <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl ripple shadow-lg shadow-emerald-500/30 hover-lift">Simpan Pemasukan</button>
                 </form>
             </div>
 
             <!-- Form Pengeluaran -->
             <div id="t-keluar" style="display:none;">
-                <form id="expense-form" class="space-y-4">
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg text-red-500">Rp</span>
-                        <input type="number" id="expense-amount" class="w-full bg-transparent border-b-2 border-gray-200 dark:border-gray-700 focus:border-red-500 text-red-500 pl-12 pr-4 py-4 text-3xl font-bold transition-all" placeholder="0" required>
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold uppercase">Deskripsi</label>
-                        <input type="text" id="expense-description" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1" placeholder="Contoh: Makan siang" required>
-                    </div>
-                    <div class="flex space-x-4">
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Tipe</label>
-                            <select id="expense-type" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
-                                <option value="">Pilih</option>
-                                <option value="pribadi">Pribadi</option>
-                                <option value="umum">Umum</option>
-                                <option value="keluarga">Keluarga</option>
-                            </select>
+                <form id="expense-form" class="space-y-5">
+                    <div class="glass-morphism modern-card p-5">
+                        <div class="relative mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 font-bold text-xl text-red-500">Rp</span>
+                            <input type="number" id="expense-amount" class="w-full bg-transparent text-red-500 pl-12 pr-4 py-2 text-4xl font-extrabold transition-all" placeholder="0" required min="1">
                         </div>
-                        <div class="flex-1">
-                            <label class="text-xs text-gray-500 font-bold uppercase">Kategori</label>
-                            <select id="expense-category" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required><option value="">Pilih</option></select>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Deskripsi</label>
+                                <input type="text" id="expense-description" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 focus:border-red-500 transition-colors" placeholder="Contoh: Makan siang" required>
+                            </div>
+                            <div class="flex space-x-4">
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Tipe</label>
+                                    <select id="expense-type" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-sm" required>
+                                        <option value="">Pilih</option>
+                                        <option value="pribadi">Pribadi</option>
+                                        <option value="umum">Umum</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Kategori</label>
+                                    <select id="expense-category" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-sm" required><option value="">Pilih</option></select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Tanggal</label>
+                                <input type="date" id="expense-date" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 text-sm" required>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold uppercase">Tanggal</label>
-                        <input type="date" id="expense-date" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mt-1 text-sm" required>
-                    </div>
-                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-xl ripple mt-4 shadow-lg shadow-red-500/30 active:scale-95 transition-transform">Simpan Pengeluaran</button>
+                    <button type="submit" class="w-full bg-red-500 text-white font-bold py-4 rounded-xl ripple shadow-lg shadow-red-500/30 hover-lift">Simpan Pengeluaran</button>
                 </form>
             </div>
         </div>
@@ -198,48 +309,174 @@
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Riwayat</h2>
                 <div class="flex space-x-2">
-                    <button onclick="exportExcel()" class="bg-emerald-500 text-white rounded-lg px-3 py-1.5 shadow shadow-emerald-500/20 text-[11px] font-bold active:scale-95 flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>Excel
+                    <button onclick="exportExcel()" class="bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-lg px-3 py-2 text-xs font-bold flex items-center hover-lift">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-1"></i>Excel
                     </button>
-                    <button onclick="exportPDF()" class="bg-rose-500 text-white rounded-lg px-3 py-1.5 shadow shadow-rose-500/20 text-[11px] font-bold active:scale-95 flex items-center">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>PDF
+                    <button onclick="exportPDF()" class="bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 rounded-lg px-3 py-2 text-xs font-bold flex items-center hover-lift">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-1"></i>PDF
                     </button>
                 </div>
             </div>
             
+            <!-- Search & Filter -->
+            <div class="mb-4">
+                <div class="relative mb-3">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                    <input type="text" id="search-transaction" class="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-indigo-500 transition-all shadow-sm" placeholder="Cari transaksi...">
+                </div>
+
+                <div class="flex space-x-2 overflow-x-auto pb-2 snap-x hide-scrollbar">
+                    <button onclick="quickFilterDate('all')" class="quick-filter-btn active flex-none bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 px-4 py-2 rounded-full text-xs font-bold border border-indigo-200 dark:border-indigo-800 transition-all snap-start">Semua</button>
+                    <button onclick="quickFilterDate('today')" class="quick-filter-btn flex-none bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 transition-all snap-start">Hari Ini</button>
+                    <button onclick="quickFilterDate('week')" class="quick-filter-btn flex-none bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 transition-all snap-start">Minggu Ini</button>
+                    <button onclick="quickFilterDate('month')" class="quick-filter-btn flex-none bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 transition-all snap-start">Bulan Ini</button>
+                </div>
+            </div>
+
             <!-- Mini filters -->
-            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
-                <select id="filter-type" class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-sm font-bold min-w-max">
+            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2 hide-scrollbar">
+                <select id="filter-type" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-2 rounded-xl text-xs font-bold min-w-max">
                     <option value="all">Semua Tipe</option>
                     <option value="income">Pemasukan</option>
                     <option value="expense">Pengeluaran</option>
                 </select>
-                <select id="filter-category" class="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-sm font-bold min-w-max">
+                <select id="filter-expense-type" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-2 rounded-xl text-xs font-bold min-w-max">
+                    <option value="all">Pribadi & Umum</option>
+                    <option value="pribadi">Pribadi</option>
+                    <option value="umum">Umum</option>
+                </select>
+                <select id="filter-category" class="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm px-4 py-2 rounded-xl text-xs font-bold min-w-max">
                     <option value="all">Semua Kategori</option>
                 </select>
             </div>
-            <div id="transactions-list"></div>
+            <div id="transactions-list" class="pb-10">
+                <!-- Skeleton Loader -->
+                <div class="glass-morphism modern-card p-4 flex items-center justify-between mb-3 animate-pulse">
+                    <div class="flex items-center space-x-3 w-full">
+                        <div class="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                        <div class="flex-1">
+                            <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+                            <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                        </div>
+                        <div class="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- KATEGORI PAGE -->
         <div id="kategori-page" class="page-content">
             <h2 class="text-2xl font-bold mb-6">Kelola Kategori</h2>
-            <form id="category-form" class="glass-morphism p-4 mb-8">
-                <input type="text" id="category-name" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-3" placeholder="Nama kategori baru" required>
-                <select id="category-type" class="w-full bg-gray-100 dark:bg-gray-800 rounded-xl p-4 mb-3" required>
+            <form id="category-form" class="glass-morphism modern-card p-5 mb-8">
+                <input type="text" id="category-name" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-3 focus:border-indigo-500 transition-colors" placeholder="Nama kategori baru" required>
+                <select id="category-type" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 focus:border-indigo-500 transition-colors" required>
                     <option value="">Pilih Tipe</option><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option>
                 </select>
-                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 rounded-xl ripple shadow shadow-indigo-500/30">Tambah Kategori</button>
+                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-4 rounded-xl ripple shadow shadow-indigo-500/30 hover-lift">Tambah Kategori</button>
             </form>
             <div class="space-y-6">
                 <div>
-                    <h3 class="font-bold text-green-500 mb-3">Kategori Pemasukan</h3>
-                    <div id="income-categories"></div>
+                    <h3 class="font-bold text-emerald-500 mb-3 flex items-center"><i data-lucide="arrow-down-left" class="w-4 h-4 mr-1"></i>Kategori Pemasukan</h3>
+                    <div id="income-categories" class="grid grid-cols-2 gap-2"></div>
                 </div>
                 <div>
-                    <h3 class="font-bold text-red-500 mb-3">Kategori Pengeluaran</h3>
-                    <div id="expense-categories"></div>
+                    <h3 class="font-bold text-rose-500 mb-3 flex items-center"><i data-lucide="arrow-up-right" class="w-4 h-4 mr-1"></i>Kategori Pengeluaran</h3>
+                    <div id="expense-categories" class="grid grid-cols-2 gap-2"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- TARGET PAGE -->
+        <div id="target-page" class="page-content">
+            <h2 class="text-2xl font-bold mb-2">Target Tabungan</h2>
+            <p class="text-sm text-gray-500 mb-6">Wujudkan impian finansial Anda.</p>
+
+            <form id="target-form" class="glass-morphism modern-card p-5 mb-8">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Nama Target</label>
+                        <input type="text" id="target-name" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 focus:border-indigo-500 transition-colors" placeholder="Contoh: Beli Mobil" required>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="flex-1 relative">
+                            <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Target (Rp)</label>
+                            <input type="number" id="target-amount" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 focus:border-indigo-500 transition-colors text-sm" required min="1">
+                        </div>
+                        <div class="flex-1 relative">
+                            <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Terkumpul</label>
+                            <input type="number" id="target-current" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 focus:border-indigo-500 transition-colors text-sm" value="0" min="0">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Bulan Deadline</label>
+                        <input type="month" id="target-deadline" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 focus:border-indigo-500 transition-colors" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-4 rounded-xl ripple shadow shadow-indigo-500/30 hover-lift">Buat Target</button>
+                </div>
+            </form>
+
+            <div id="target-list" class="space-y-4 pb-10"></div>
+        </div>
+
+        <!-- Update Target Modal -->
+        <div id="update-target-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden flex-col justify-end sm:justify-center items-center">
+            <div class="bg-white dark:bg-gray-900 w-full sm:w-[28rem] rounded-t-3xl sm:rounded-3xl p-6 transform transition-transform translate-y-full" id="update-target-modal-content">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="font-bold text-lg">Update Dana Terkumpul</h3>
+                    <button onclick="closeUpdateTargetModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <form id="update-target-form" class="space-y-4">
+                    <input type="hidden" id="update-target-id">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Nominal Terkumpul Saat Ini (Rp)</label>
+                        <input type="number" id="update-target-amount" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-xl font-bold" required min="0">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-500 text-white font-bold py-4 rounded-xl ripple mt-2">Simpan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Transaction Modal -->
+        <div id="edit-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] hidden flex-col justify-end sm:justify-center items-center">
+            <div class="bg-white dark:bg-gray-900 w-full sm:w-[28rem] rounded-t-3xl sm:rounded-3xl p-6 transform transition-transform translate-y-full" id="edit-modal-content">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="font-bold text-lg">Edit Transaksi</h3>
+                    <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+                <form id="edit-form" class="space-y-4">
+                    <input type="hidden" id="edit-id">
+                    <input type="hidden" id="edit-type">
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Nominal (Rp)</label>
+                        <input type="number" id="edit-amount" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700" required min="1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Deskripsi</label>
+                        <input type="text" id="edit-description" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700" required>
+                    </div>
+                    <div class="flex space-x-3">
+                        <div class="flex-1" id="edit-expense-type-container">
+                            <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Tipe</label>
+                            <select id="edit-expense-type" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-sm">
+                                <option value="pribadi">Pribadi</option>
+                                <option value="umum">Umum</option>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Kategori</label>
+                            <select id="edit-category" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-sm" required></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-500 font-bold uppercase block mb-1">Tanggal</label>
+                        <input type="date" id="edit-date" class="w-full bg-gray-50 dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 text-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-4 rounded-xl ripple mt-2">Simpan Perubahan</button>
+                </form>
             </div>
         </div>
 
@@ -248,20 +485,27 @@
     <!-- Bottom Navigation Bar for PWA Mobile Feel -->
     <nav class="bottom-nav">
         <div class="bottom-nav-item active ripple" onclick="showPage('dashboard')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <i data-lucide="home"></i>
             <span>Beranda</span>
         </div>
+        <div class="bottom-nav-item ripple" onclick="showPage('hutang')">
+            <i data-lucide="book-open-check"></i>
+            <span>Hutang</span>
+        </div>
+        <div class="bottom-nav-item ripple" onclick="showPage('target')">
+            <i data-lucide="target"></i>
+            <span>Target</span>
+        </div>
+        <div class="bottom-nav-item ripple" onclick="showPage('transaksi')">
+            <i data-lucide="plus-circle"></i>
+            <span>Transaksi</span>
+        </div>
         <div class="bottom-nav-item ripple" onclick="showPage('riwayat')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            <i data-lucide="history"></i>
             <span>Riwayat</span>
         </div>
-        <!-- Transaksi button -->
-        <div class="bottom-nav-item ripple" onclick="showPage('transaksi')">
-            <svg class="text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span class="text-blue-500 font-bold">Transaksi</span>
-        </div>
         <div class="bottom-nav-item ripple" onclick="showPage('kategori')">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            <i data-lucide="grid-2x2"></i>
             <span>Kategori</span>
         </div>
     </nav>
