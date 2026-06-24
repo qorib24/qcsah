@@ -36,6 +36,7 @@ let hutangList = {};
 let currentHutangFilter = 'all';
 let globalFilter = { from: null, to: null };
 let currentQuickFilter = 'all';
+let currentFilteredTransactions = [];
 
 function initializeApp() {
     setTimeout(() => {
@@ -63,6 +64,8 @@ function initializeApp() {
     window.deleteCategory = deleteCategory;
     window.applyGlobalFilter = applyGlobalFilter;
     window.resetGlobalFilter = resetGlobalFilter;
+    window.applyDashboardFilter = applyDashboardFilter;
+    window.resetDashboardFilter = resetDashboardFilter;
     window.exportExcel = exportExcel;
     window.exportPDF = exportPDF;
     window.openEditModal = openEditModal;
@@ -134,6 +137,22 @@ function setDefaultDates() {
     // Set min deadline for target to current month
     const monthStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
     if(document.getElementById('target-deadline')) document.getElementById('target-deadline').setAttribute('min', monthStr);
+}
+
+function applyDashboardFilter() {
+    globalFilter.from = document.getElementById('dashboard-date-from')?.value || null;
+    globalFilter.to = document.getElementById('dashboard-date-to')?.value || null;
+    updateDashboard();
+    if(document.getElementById('riwayat-page')?.classList.contains('active')) applyFilters();
+}
+
+function resetDashboardFilter() {
+    if(document.getElementById('dashboard-date-from')) document.getElementById('dashboard-date-from').value = '';
+    if(document.getElementById('dashboard-date-to')) document.getElementById('dashboard-date-to').value = '';
+    globalFilter.from = null;
+    globalFilter.to = null;
+    updateDashboard();
+    if(document.getElementById('riwayat-page')?.classList.contains('active')) applyFilters();
 }
 
 /* --- Firebase Data Loading --- */
@@ -375,7 +394,7 @@ function showPage(pageId) {
     if (pageId === 'dashboard') {
         setTimeout(updateCharts, 100);
     } else if (pageId === 'riwayat') {
-        displayTransactions();
+        applyFilters();
         populateFilterCategories();
     } else if (pageId === 'budget') {
         updateBudgetList();
@@ -405,6 +424,7 @@ function animateValue(obj, start, end, duration) {
 
 function updateDashboard() {
     const filtered = getFilteredTransactions();
+
     const totalInc = filtered.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const totalExp = filtered.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     const totalBal = totalInc - totalExp;
@@ -711,7 +731,8 @@ function applyFilters() {
 
 function displayTransactions(filtered) {
     const list = filtered || getFilteredTransactions();
-    const sorted = list.sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+    currentFilteredTransactions = list;
+    const sorted = [...list].sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
     const container = document.getElementById('transactions-list');
     if (!container) return;
     if (sorted.length === 0) {
@@ -935,7 +956,7 @@ function showToast(ty, msg) {
 
 /* --- Exports --- */
 function exportExcel() {
-    const data = transactions; 
+    const data = currentFilteredTransactions; 
     if(data.length === 0) return showToast('error', 'Tidak ada data!');
     
     const rows = data.map((t, i) => ({
@@ -943,15 +964,34 @@ function exportExcel() {
         'Jenis': t.type === 'expense' && t.expenseType ? (t.expenseType === 'pribadi' ? 'Pribadi' : 'Umum') : '-',
         'Kategori': t.category, 'Deskripsi': t.description, 'Nominal (Rp)': t.amount
     }));
+    
+    const summary = {};
+    let totalInc = 0, totalExp = 0;
+    data.forEach(t => {
+        if(!summary[t.category]) summary[t.category] = { type: t.type, amount: 0 };
+        summary[t.category].amount += t.amount;
+        if(t.type === 'income') totalInc += t.amount;
+        else totalExp += t.amount;
+    });
+
+    const sumRows = Object.keys(summary).map(cat => ({
+        'Kategori': cat, 'Tipe': summary[cat].type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'Total (Rp)': summary[cat].amount
+    }));
+    sumRows.push({ 'Kategori': 'TOTAL PEMASUKAN', 'Tipe': '', 'Total (Rp)': totalInc });
+    sumRows.push({ 'Kategori': 'TOTAL PENGELUARAN', 'Tipe': '', 'Total (Rp)': totalExp });
+    sumRows.push({ 'Kategori': 'SALDO BERSIH', 'Tipe': '', 'Total (Rp)': totalInc - totalExp });
+
     const ws = XLSX.utils.json_to_sheet(rows);
+    const wsSum = XLSX.utils.json_to_sheet(sumRows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Riwayat");
+    XLSX.utils.book_append_sheet(wb, wsSum, "Ringkasan Kategori");
     XLSX.writeFile(wb, "QCash_Laporan.xlsx");
     showToast('success', 'Excel diunduh!');
 }
 
 function exportPDF() {
-    const data = transactions;
+    const data = currentFilteredTransactions;
     if(data.length === 0) return showToast('error', 'Tidak ada data!');
     
     const { jsPDF } = window.jspdf;
@@ -968,6 +1008,31 @@ function exportPDF() {
         startY: 20, head: [['No', 'Tanggal', 'Tipe', 'Jenis', 'Kategori', 'Deskripsi', 'Nominal']],
         body: tableData, theme: 'striped', headStyles: { fillColor: [99, 102, 241] } 
     });
+
+    const finalY = doc.lastAutoTable.finalY || 20;
+    
+    const summary = {};
+    let totalInc = 0, totalExp = 0;
+    data.forEach(t => {
+        if(!summary[t.category]) summary[t.category] = { type: t.type, amount: 0 };
+        summary[t.category].amount += t.amount;
+        if(t.type === 'income') totalInc += t.amount;
+        else totalExp += t.amount;
+    });
+
+    const sumTableData = Object.keys(summary).map(cat => [
+        cat, summary[cat].type === 'income' ? 'Pemasukan' : 'Pengeluaran', 'Rp ' + summary[cat].amount.toLocaleString('id-ID')
+    ]);
+    sumTableData.push(['TOTAL PEMASUKAN', '', 'Rp ' + totalInc.toLocaleString('id-ID')]);
+    sumTableData.push(['TOTAL PENGELUARAN', '', 'Rp ' + totalExp.toLocaleString('id-ID')]);
+    sumTableData.push(['SALDO BERSIH', '', 'Rp ' + (totalInc - totalExp).toLocaleString('id-ID')]);
+
+    doc.text("Ringkasan per Kategori", 14, finalY + 10);
+    doc.autoTable({
+        startY: finalY + 15, head: [['Kategori', 'Tipe', 'Total Nominal']],
+        body: sumTableData, theme: 'striped', headStyles: { fillColor: [16, 185, 129] }
+    });
+
     doc.save("QCash_Laporan.pdf");
     showToast('success', 'PDF diunduh!');
 }
@@ -990,9 +1055,8 @@ function handleHutangSubmit(e) {
     const type = document.getElementById('hutang-type').value;
     const name = document.getElementById('hutang-name').value;
     const amount = parseFloat(document.getElementById('hutang-amount').value);
-    const date = document.getElementById('hutang-date').value;
     
-    if(!name || !amount || amount <= 0 || !date) return showToast('error', 'Data tidak valid!');
+    if(!name || !amount || amount <= 0) return showToast('error', 'Data tidak valid!');
 
     const newId = 'hutang_' + Date.now();
     hutangList[newId] = {
@@ -1000,7 +1064,6 @@ function handleHutangSubmit(e) {
         type: type,
         name: name,
         amount: amount,
-        dueDate: date,
         status: 'belum_lunas', // belum_lunas | lunas
         createdAt: new Date().toISOString()
     };
@@ -1056,7 +1119,7 @@ function renderHutang() {
         items = items.filter(item => item.status === currentHutangFilter);
     }
     
-    items.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     if(items.length === 0) {
         container.innerHTML = '<div class="text-center py-8 text-gray-400 text-sm">Tidak ada data ditemukan</div>';
@@ -1091,10 +1154,6 @@ function renderHutang() {
             </div>
             
             <div class="flex justify-between items-center mt-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                <div class="flex flex-col">
-                    <span class="text-[10px] text-gray-400">Jatuh Tempo</span>
-                    <span class="text-xs font-medium text-gray-600 dark:text-gray-300">${formatDate(t.dueDate)}</span>
-                </div>
                 <div class="flex items-center space-x-3">
                     ${statusBadge}
                     <div class="w-px h-6 bg-gray-200 dark:bg-gray-700"></div>

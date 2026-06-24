@@ -61,7 +61,7 @@
         <!-- DASHBOARD -->
         <div id="dashboard-page" class="page-content active">
             <!-- Header greeting -->
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex justify-between items-center mb-4">
                 <div>
                     <h2 class="text-sm text-gray-500 font-medium">Kondisi Keuangan</h2>
                     <div id="financial-condition" class="text-xl font-bold flex items-center space-x-2">
@@ -71,6 +71,19 @@
                 <button class="bg-white/50 dark:bg-gray-800/50 p-2 rounded-full shadow-sm" onclick="showPage('transaksi')">
                     <i data-lucide="plus" class="w-5 h-5 text-indigo-500"></i>
                 </button>
+            </div>
+
+            <!-- Dashboard Date Filter -->
+            <div class="flex flex-col space-y-2 mb-6">
+                <div class="flex items-center space-x-2">
+                    <input type="date" id="dashboard-date-from" class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs shadow-sm">
+                    <span class="text-xs text-gray-500 font-bold">s/d</span>
+                    <input type="date" id="dashboard-date-to" class="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs shadow-sm">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="applyDashboardFilter()" class="flex-1 bg-indigo-500 text-white font-bold py-2.5 rounded-xl shadow-sm text-xs transition-transform active:scale-95">Terapkan Filter</button>
+                    <button onclick="resetDashboardFilter()" class="bg-gray-100 dark:bg-gray-800 px-5 py-2.5 rounded-xl shadow-sm text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-xs font-bold active:scale-95">Reset</button>
+                </div>
             </div>
 
             <!-- Total Balance Card -->
@@ -95,6 +108,18 @@
                             <span class="text-xs text-white/80">Pengeluaran</span>
                         </div>
                         <div class="text-sm font-bold" id="total-expense">Rp 0</div>
+                    </div>
+                </div>
+
+                <!-- Tambahan Pribadi & Umum -->
+                <div class="grid grid-cols-2 gap-4 mt-3">
+                    <div class="bg-white/5 backdrop-blur-md rounded-xl p-2 border border-white/10">
+                        <div class="text-[10px] text-white/70 mb-0.5">Pribadi</div>
+                        <div class="text-xs font-bold" id="expense-pribadi">Rp 0</div>
+                    </div>
+                    <div class="bg-white/5 backdrop-blur-md rounded-xl p-2 border border-white/10">
+                        <div class="text-[10px] text-white/70 mb-0.5">Umum</div>
+                        <div class="text-xs font-bold" id="expense-umum">Rp 0</div>
                     </div>
                 </div>
             </div>
@@ -206,10 +231,6 @@
                         <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Nominal (Rp)</label>
                         <span class="absolute left-4 top-[35px] font-bold text-gray-500 text-sm">Rp</span>
                         <input type="number" id="hutang-amount" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl pl-12 pr-4 py-3 font-bold transition-all text-sm" placeholder="0" required min="1">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-500 font-bold uppercase mb-1 block">Tanggal Jatuh Tempo</label>
-                        <input type="date" id="hutang-date" class="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm focus:border-indigo-500" required>
                     </div>
                     <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-3 text-sm rounded-xl ripple mt-2 shadow-lg shadow-indigo-500/30 hover-lift">Simpan Catatan</button>
                 </div>
